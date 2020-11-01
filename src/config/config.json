@@ -1,5 +1,5 @@
 {
     "dev":{
-        "path":"https://sprint-be.herokuapp.com"
+        "path":"http://localhost:8000"
     }
 }

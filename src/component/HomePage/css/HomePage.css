@@ -1,6 +1,68 @@
 .board-card{
-    width: 18rem;
+    width: 17rem;
+    height: 9rem;
+    font-size: 20px;
+    font-weight: 700;
+    color:white;
+    text-align: left;
+    padding-top: 2px;
     margin: 5px;
-    vertical-align: middle;
+    vertical-align: text-top;
+    background-image: linear-gradient(rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0.05)),
+    url("https://images.unsplash.com/photo-1542370285-b8eb8317691c?ixlib=rb-1.2.1&auto=format&fit=crop&w=712&q=80");
+    background-size:     cover;
+    background-repeat:   no-repeat;
+    background-position: center center;
+    border: none;
+}
+
+.board-card:hover{
+    background: linear-gradient(rgba(0,0,0,.5), rgba(0,0,0,.1)),
+    url("https://images.unsplash.com/photo-1542370285-b8eb8317691c?ixlib=rb-1.2.1&auto=format&fit=crop&w=712&q=80");
+    background-size:     cover;
+    background-repeat:   no-repeat;
+    background-position: center center;
+}
+
+.add-card{
+    width: 17rem;
+    height: 9rem;
     text-align: center;
+    margin: 5px;
+    background: rgba(56, 56, 56, 0.2);
+    border: none;
+}
+
+.add-card:hover{
+    background: rgba(56, 56, 56, 0.5);
+}
+
+.list-board{
+    margin-top:4%;
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.btn-edit{
+    background-color: Transparent;
+    background-repeat:no-repeat;
+    color: white;
+    border: none;
+    cursor:pointer;
+    overflow: hidden;
+    outline:none;
+}
+
+a{
+    cursor: unset;
+}
+
+.btn-group {
+    position: absolute;
+    top: 1px;
+    right: 4px;
+}
+
+.input-board {
+    width: 100%;
 }
