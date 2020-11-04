@@ -15,7 +15,7 @@ const Home = () => {
   const [showDelPopup, setShowDelPopup] = useState(false);
   const [deleteItemId, setDeleteItemId] = useState(-1);
   useEffect(() => {
-    //Axios.defaults.withCredentials = true;
+    Axios.defaults.withCredentials = true;
     Axios.get(`${config.dev.path}/board`)
       .then((res) => {
         if (res.data.code === 0) setBoard(res.data.data.boards)

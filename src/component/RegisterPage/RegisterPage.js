@@ -13,7 +13,7 @@ const RegisterPage = (props) => {
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
   const [confirm, setConfirm] = useState("");
-  //Axios.defaults.withCredentials = true;
+  Axios.defaults.withCredentials = true;
   const onRegister = () => {
     if (password && name && username) {
       if (password !== confirm) alert("Confirm password incorrect!");
