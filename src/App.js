@@ -5,15 +5,18 @@ import HomeLayout from './component/HomeLayout/HomeLayout';
 import BoardPage from './component/BoardPage/BoardPage';
 import Sidebar from './component/Sidebar/Sidebar';
 import LoginPage from './component/LoginPage/LoginPage';
+import PrivateRoute from './component/PrivateRoute/PrivateRoute';
+import RegisterPage from './component/RegisterPage/RegisterPage';
 
 function App() {
   return (
     <>
     <Sidebar/>
     <Switch>
-        <Route path='/home' component={HomeLayout}/>
+        <PrivateRoute path='/home' component={HomeLayout}/>
         <Route path="/login" component={LoginPage}/>
-        <Route path="/board/:id" component={BoardPage}/>
+        <Route path="/register" component={RegisterPage}/>
+        <PrivateRoute path="/board/:id" component={BoardPage}/>
         <Redirect from="/" to="/home" />
     </Switch>
     </>

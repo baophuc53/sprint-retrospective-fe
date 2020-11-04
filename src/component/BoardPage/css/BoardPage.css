@@ -23,7 +23,6 @@ html {
 }
 .container-fluid {
   display: flex;
-  justify-content: center;
   align-items: flex-start;
   padding-top: 32px;
 }

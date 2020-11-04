@@ -14,11 +14,12 @@ const Home = () => {
   const [editItemName, setEditItemName] = useState("");
   const [showDelPopup, setShowDelPopup] = useState(false);
   const [deleteItemId, setDeleteItemId] = useState(-1);
-
   useEffect(() => {
+    Axios.defaults.withCredentials = true;
     Axios.get(`${config.dev.path}/board`)
       .then((res) => {
-        if (res.data.code === 0) setBoard(res.data.data.boards);
+        if (res.data.code === 0) setBoard(res.data.data.boards)
+        else alert("dang nhap di");
       })
       .catch((err) => {
         console.log(err);

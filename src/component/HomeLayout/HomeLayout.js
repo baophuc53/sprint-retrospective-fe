@@ -17,7 +17,7 @@ const HomeLayout = (props) => {
               </Card.Body>
             </Card>
           </Col>
-          <Col xs={10} id="page-content-wrapper">
+          <Col xl={10} id="page-content-wrapper">
             <HomePage />
           </Col>
         </Row>
