@@ -1,0 +1,11 @@
+.navbar-brand {
+    margin-right: auto;
+    a {
+        color: white;
+        font-weight: bold;
+        &:hover {
+            cursor: pointer;
+            text-decoration: none;
+        }
+    }
+}

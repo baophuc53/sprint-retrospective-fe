@@ -1,7 +1,21 @@
 .menu {
     height: 100%;
+    font-weight: 300;
 }
 
 .row {
     width: 100%;
+}
+
+.title {
+    background: rgba(0, 0, 0, 0.1);
+}
+
+a{
+    cursor: pointer;
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: none;
 }

@@ -3,6 +3,7 @@ import { Button, Card, Form, Modal } from "react-bootstrap";
 import { withRouter } from "react-router";
 import { Link } from "react-router-dom";
 import config from "../../config/config.json";
+import copy from "copy-to-clipboard";
 import Axios from "axios";
 import "./css/HomePage.css";
 
@@ -14,11 +15,18 @@ const Home = () => {
   const [editItemName, setEditItemName] = useState("");
   const [showDelPopup, setShowDelPopup] = useState(false);
   const [deleteItemId, setDeleteItemId] = useState(-1);
+  const [showSharePopup, setShowSharePopup] = useState(false);
+  const [shareLink, setShareLink] = useState("");
+  const token = localStorage.getItem("token");
   useEffect(() => {
     Axios.defaults.withCredentials = true;
-    Axios.get(`${config.dev.path}/board`)
+    Axios.get(`${config.dev.path}/board`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    })
       .then((res) => {
-        if (res.data.code === 0) setBoard(res.data.data.boards)
+        if (res.data.code === 0) setBoard(res.data.data.boards);
         else alert("dang nhap di");
       })
       .catch((err) => {
@@ -28,17 +36,43 @@ const Home = () => {
   }, []);
 
   const addBoard = (newBoardName) => {
-    Axios.post(`${config.dev.path}/board`, { name: newBoardName }).then(
-      (res) => {
-        if (res.data.code === 0)
-          setBoard([...board, { id: res.data.data.id, name: newBoardName }]);
+    Axios.post(
+      `${config.dev.path}/board`,
+      { name: newBoardName },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
       }
-    );
+    ).then((res) => {
+      if (res.data.code === 0)
+        setBoard([...board, { id: res.data.data.id, name: newBoardName }]);
+    });
   };
 
   const editBoard = (item) => {
     setEditItemID(item.id);
     setEditItemName(item.name);
+  };
+
+  const shareBoard = (id) => {
+    Axios.get(`${config.dev.path}/board/share/${id}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    })
+      .then((res) => {
+        if (res.data.code === 0) {
+          setShareLink(
+            `${config.app.path}/share-board/${res.data.data.shareToken}`
+          );
+          setShowSharePopup(true);
+        }
+      })
+      .catch((err) => {
+        console.log(err);
+        alert(err.message);
+      });
   };
 
   const handleKeyPress = (ev, item) => {
@@ -48,7 +82,11 @@ const Home = () => {
     };
     if (ev.key === "Enter") {
       if (ev.target.value !== item.name && ev.target.value !== "") {
-        Axios.put(`${config.dev.path}/board`, entity)
+        Axios.put(`${config.dev.path}/board`, entity, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        })
           .then((res) => {
             if (res.data.code === 0) {
               setEditItemID(-1);
@@ -94,10 +132,15 @@ const Home = () => {
                     type="text"
                     value={editItemName}
                     autoFocus
+                    onBlur={(e) => {
+                      setEditItemID(-1);
+                    }}
                     onKeyPress={(e) => handleKeyPress(e, item)}
                     onChange={(e) => handleChange(e)}
                   />
-                ) : (item.name)}
+                ) : (
+                  item.name
+                )}
                 <div className="btn-group">
                   <button
                     className="btn-edit ml-2"
@@ -119,6 +162,15 @@ const Home = () => {
                     <i class="fa fa-trash" aria-hidden="true"></i>
                   </button>
                 </div>
+                <button
+                  className="btn-share ml-2"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    shareBoard(item.id);
+                  }}
+                >
+                  <i class="fa fa-share" aria-hidden="true"></i>
+                </button>
               </Card.Body>
             </Card>
           </Link>
@@ -144,7 +196,12 @@ const Home = () => {
 
   const deleteBoard = (id) => {
     console.log(id);
-    Axios.delete(`${config.dev.path}/board`, {data: {id}})
+    Axios.delete(`${config.dev.path}/board`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      data: { id },
+    })
       .then((res) => {
         if (res.data.code === 0) {
           console.log("ok");
@@ -226,11 +283,41 @@ const Home = () => {
     );
   };
 
+  const showShareModal = () => {
+    return (
+      <Modal show={showSharePopup} onHide={() => setShowSharePopup(false)}>
+        <Modal.Header closeButton>
+          <Modal.Title>Share Board</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <Form.Group>
+            <Form.Control as="textarea" rows={3} readOnly value={shareLink} />
+          </Form.Group>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button
+            variant="secondary"
+            onClick={() => {
+              copy(shareLink);
+              setShowSharePopup(false);
+            }}
+          >
+            Copy
+          </Button>
+          <Button variant="primary" onClick={() => setShowSharePopup(false)}>
+            OK
+          </Button>
+        </Modal.Footer>
+      </Modal>
+    );
+  };
+
   return (
     <>
       <div className="list-board">{showListBoard(board)}</div>
       {showAddModal()}
       {showDeleteModal()}
+      {showShareModal()}
     </>
   );
 };

@@ -2,25 +2,28 @@ import React, { useState } from "react";
 import {Button, Card, Form, Modal } from "react-bootstrap";
 import config from "../../config/config.json";
 import Axios from "axios";
-import "./css/RegisterPage.css";
 
 const RegisterPage = (props) => {
   //console.log(props);
-  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const [name, setName] = useState("");
+  const [newPassword, setNewPass] = useState("");
   const [confirm, setConfirm] = useState("");
   const [isConfirm, setIsConfirm] = useState(false);
   const [isFail, setIsFail] = useState(false);
   const [showModal, setShowModal] = useState(false);
+  const token = localStorage.getItem('token');
   Axios.defaults.withCredentials = true;
-  const onRegister = () => {
+  const onChangePass = () => {
     setIsFail(false);
     setIsConfirm(false);
-    if (password && name && username) {
-      if (password !== confirm) setIsConfirm(true);
+    if (password && newPassword) {
+      if (newPassword !== confirm) setIsConfirm(true);
       else {
-        Axios.post(`${config.dev.path}/user/add`, { name, username, password })
+        Axios.post(`${config.dev.path}/user/change-pass`, { password, newPassword }, {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          })
           .then((res) => {
             console.log(res);
             if (res.data.code === 0) {
@@ -41,12 +44,12 @@ const RegisterPage = (props) => {
     return (
       <Modal show={showModal} onHide={() => setShowModal(false)}>
         <Modal.Header closeButton>
-          <Modal.Title>Register</Modal.Title>
+          <Modal.Title>Change password</Modal.Title>
         </Modal.Header>
         <Modal.Body>
           <Form>
             <Form.Group>
-              <Form.Label>You are registered successfully!</Form.Label>
+              <Form.Label>Your password are changed successfully!</Form.Label>
             </Form.Group>
           </Form>
         </Modal.Body>
@@ -55,7 +58,7 @@ const RegisterPage = (props) => {
             variant="primary"
             onClick={() => {
               setShowModal(false);
-              window.location.href = "/login";
+              window.location.href = "/home";
             }}
           >
             OK
@@ -70,29 +73,26 @@ const RegisterPage = (props) => {
       <div className="d-flex justify-content-center">
         <Card className="login-form shadow">
           <Card.Title className="mt-4">
-            <h3>Register</h3>
+            <h3>Change password</h3>
           </Card.Title>
           <Card.Body className="mr-3 ml-3">
             <Form>
               <Form.Group>
-                <Form.Label>Full Name</Form.Label>
-                <Form.Control
-                  required
-                  onChange={(e) => setName(e.target.value)}
-                ></Form.Control>
-                <Form.Label>Username</Form.Label>
-                <Form.Control
-                  autoComplete="off"
-                  onChange={(e) => setUsername(e.target.value)}
-                ></Form.Control>
-                <Form.Label>Password</Form.Label>
+                <Form.Label>Current Password</Form.Label>
                 <Form.Control
                   required
                   autoComplete="off"
                   type="password"
                   onChange={(e) => setPassword(e.target.value)}
                 ></Form.Control>
-                <Form.Label>Confirm Password</Form.Label>
+                <Form.Label>New Password</Form.Label>
+                <Form.Control
+                  required
+                  autoComplete="off"
+                  type="password"
+                  onChange={(e) => setNewPass(e.target.value)}
+                ></Form.Control>
+                <Form.Label>Confirm New Password</Form.Label>
                 <Form.Control
                   type="password"
                   onChange={(e) => setConfirm(e.target.value)}
@@ -104,11 +104,11 @@ const RegisterPage = (props) => {
                 <></>
               )}
               {isFail ? (
-                <div className="alert">Register fail!</div>
+                <div className="alert">Change password fail!</div>
               ) : (
                 <></>
               )}
-              <Button onClick={onRegister}>Register</Button>
+              <Button onClick={onChangePass}>Change</Button>
             </Form>
           </Card.Body>
         </Card>

@@ -5,11 +5,23 @@ import Axios from "axios";
 import "./css/BoardPage.css";
 
 const BoardPage = (props) => {
+  const shareToken = props.match.params.shareToken;
   const [tasks, setTasks] = useState([]);
   const [editTaskId, setEditTaskId] = useState(-1);
+  const [showDelPopup, setShowDelPopup] = useState(false);
   const [editTaskName, setEditTaskName] = useState("");
+  const [deleteTaskId, setDeleteTaskId] = useState(-1);
+  const token = localStorage.getItem("token");
   useEffect(() => {
-    Axios.get(`${config.dev.path}/board/${props.match.params.id}`)
+    const path = shareToken
+      ? `${config.dev.path}/share-board/${shareToken}`
+      : `${config.dev.path}/board/${props.match.params.id}`;
+    Axios.defaults.withCredentials = true;
+    Axios.get(path, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    })
       .then((res) => {
         if (res.data.code === 0) {
           const list = res.data.data.list.map((item) => ({
@@ -45,32 +57,39 @@ const BoardPage = (props) => {
       }
       return task;
     });
-    if (cat !== "trash") {
-      Axios.post(
-        `${config.dev.path}/board/patch/${props.match.params.id}`,
-        entity
-      ).then((res) => {
-        if (res.data.code === 0) {
-          setTasks(curTasks);
-        }
-      });
-    } else {
-      Axios.post(`${config.dev.path}/board/delete`, { id: entity.id }).then(
-        (res) => {
-          if (res.data.code === 0) setTasks(curTasks);
-        }
-      );
-    }
+    const path = shareToken
+      ? `${config.dev.path}/share-board/patch/${shareToken}`
+      : `${config.dev.path}/board/patch/${props.match.params.id}`;
+    Axios.post(path, entity, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }).then((res) => {
+      if (res.data.code === 0) {
+        setTasks(curTasks);
+      }
+    });
   };
 
   const handleKeyPress = (ev) => {
     if (ev.key === "Enter" && ev.target.value !== "") {
       const newName = ev.target.value;
-      Axios.post(`${config.dev.path}/board/add/${props.match.params.id}`, {
-        board_id: props.match.params.id,
-        name: newName,
-        column_name: "wentwell",
-      }).then((res) => {
+      const path = shareToken
+        ? `${config.dev.path}/share-board/add/${shareToken}`
+        : `${config.dev.path}/board/add/${props.match.params.id}`;
+      Axios.post(
+        path,
+        {
+          board_id: props.match.params.id,
+          name: newName,
+          column_name: "wentwell",
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      ).then((res) => {
         if (res.data.code === 0) {
           setTasks([
             ...tasks,
@@ -87,6 +106,58 @@ const BoardPage = (props) => {
     setEditTaskName(item.name);
   };
 
+  const delTask = (id) => {
+    const path = shareToken
+      ? `${config.dev.path}/share-board/task/${shareToken}`
+      : `${config.dev.path}/board/task`;
+    Axios.delete(path, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      data: { id },
+    })
+      .then((res) => {
+        console.log(res);
+        if (res.data.code === 0) {
+          const curTasks = tasks.filter((t) => {
+            return t.id !== id;
+          });
+          setTasks(curTasks);
+        }
+      })
+      .catch((err) => {
+        console.log(err);
+        alert(err.message);
+      });
+  };
+
+  const showDeleteModal = () => {
+    return (
+      <Modal show={showDelPopup} onHide={() => setShowDelPopup(false)}>
+        <Modal.Header closeButton>
+          <Modal.Title>Delete Task</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <p>Are you sure to delete this task?</p>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button
+            variant="secondary"
+            onClick={() => {
+              delTask(deleteTaskId);
+              setShowDelPopup(false);
+            }}
+          >
+            Yes
+          </Button>
+          <Button variant="primary" onClick={() => setShowDelPopup(false)}>
+            No
+          </Button>
+        </Modal.Footer>
+      </Modal>
+    );
+  };
+
   const handleChange = (e) => {
     setEditTaskName(e.target.value);
   };
@@ -98,13 +169,16 @@ const BoardPage = (props) => {
         name: ev.target.value,
         column_name: t.col,
       };
-
       console.log(tasks);
+      const path = shareToken
+        ? `${config.dev.path}/share-board/patch/${shareToken}`
+        : `${config.dev.path}/board/patch/${props.match.params.id}`;
       if (ev.target.value !== t.name && ev.target.value !== "") {
-        Axios.post(
-          `${config.dev.path}/board/patch/${props.match.params.id}`,
-          entity
-        )
+        Axios.post(path, entity, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        })
           .then((res) => {
             console.log(res);
             if (res.data.code === 0) {
@@ -146,6 +220,9 @@ const BoardPage = (props) => {
             type="text"
             value={editTaskName}
             autoFocus
+            onBlur={(e) => {
+              setEditTaskId(-1);
+            }}
             onKeyPress={(e) => handleKeyPressEdit(e, t)}
             onChange={(e) => handleChange(e)}
           />
@@ -153,13 +230,23 @@ const BoardPage = (props) => {
           t.name
         )}
         <button
-          className="btn-edit-task"
+          className="btn-task"
+          onClick={(e) => {
+            e.preventDefault();
+            setDeleteTaskId(t.id);
+            setShowDelPopup(true);
+          }}
+        >
+          <i className="fa fa-trash" aria-hidden="true"></i>
+        </button>
+        <button
+          className="btn-task"
           onClick={(e) => {
             e.preventDefault();
             editTask(t);
           }}
         >
-          <i class="fa fa-pencil" aria-hidden="true"></i>
+          <i className="fa fa-pencil" aria-hidden="true"></i>
         </button>
       </div>
     );
@@ -201,14 +288,8 @@ const BoardPage = (props) => {
           type="text"
           placeholder="Task Name"
         />
-        <div
-          class="trash-drop"
-          onDrop={(e) => onDrop(e, "trash")}
-          onDragOver={(e) => onDragOver(e)}
-        >
-          Drop here to remove
-        </div>
       </div>
+      {showDeleteModal()}
     </div>
   );
 };

@@ -98,7 +98,7 @@ h1 {
     height: 110px;
 }
 
-.btn-edit-task{
+.btn-task{
   background-color: Transparent;
   background-repeat:no-repeat;
   color: white;
@@ -107,6 +107,8 @@ h1 {
   overflow: hidden;
   outline:none;
   float: right;
+  margin-left: 7px;
+  font-size: 17px;
 }
 
 .input-edit-task {
